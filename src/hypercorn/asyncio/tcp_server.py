@@ -83,7 +83,6 @@ class TCPServer:
                     await self.protocol.handle(Closed())
         elif isinstance(event, Closed):
             await self._close()
-            await self.protocol.handle(Closed())
         elif isinstance(event, Updated):
             if event.idle:
                 await self._start_idle()
@@ -101,10 +100,11 @@ class TCPServer:
                 TimeoutError,
                 SSLError,
             ):
-                await self.protocol.handle(Closed())
                 break
             else:
                 await self.protocol.handle(RawData(data))
+
+        await self.protocol.handle(Closed())
 
     async def _close(self) -> None:
         try:
@@ -115,7 +115,7 @@ class TCPServer:
         try:
             self.writer.close()
             await self.writer.wait_closed()
-        except (BrokenPipeError, ConnectionResetError, RuntimeError):
+        except (BrokenPipeError, ConnectionAbortedError, ConnectionResetError, RuntimeError):
             pass  # Already closed
 
         await self._stop_idle()

@@ -17,6 +17,7 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Literal,
     Optional,
     Tuple,
     TYPE_CHECKING,
@@ -25,11 +26,6 @@ from typing import (
 from .app_wrappers import ASGIWrapper, WSGIWrapper
 from .config import Config
 from .typing import AppWrapper, ASGIFramework, Framework, WSGIFramework
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore
 
 if TYPE_CHECKING:
     from .protocol.events import Request
@@ -115,13 +111,13 @@ def load_application(path: str, wsgi_max_body_size: int) -> AppWrapper:
         module = import_module(import_name)
     except ModuleNotFoundError as error:
         if error.name == import_name:
-            raise NoAppError()
+            raise NoAppError(f"Cannot load application from '{path}', module not found.")
         else:
             raise
     try:
         app = eval(app_name, vars(module))
     except NameError:
-        raise NoAppError()
+        raise NoAppError(f"Cannot load application from '{path}', application not found.")
     else:
         return wrap_app(app, wsgi_max_body_size, mode)
 
@@ -168,7 +164,7 @@ def wait_for_changes(shutdown_event: EventType) -> None:
                     last_updates[path] = mtime
 
 
-async def raise_shutdown(shutdown_event: Callable[..., Awaitable[None]]) -> None:
+async def raise_shutdown(shutdown_event: Callable[..., Awaitable]) -> None:
     await shutdown_event()
     raise ShutdownError()
 

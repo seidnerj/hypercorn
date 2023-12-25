@@ -1,3 +1,37 @@
+0.15.0 2023-10-29
+-----------------
+
+* Improve the NoAppError to help diagnose why the app has not been
+  found.
+* Log cancelled requests as well as successful to aid diagnositics of
+  failures.
+* Use more modern asyncio apis. This will hopefully fix reported
+  memory leak issues.
+* Bugfix only load the application in the main process if the reloader
+  is being used.
+* Bugfix Autoreload error because reausing old sockets.
+* Bugfix scope client usage for sock binding.
+* Bugfix disable multiprocessing if number of workers is 0 to support
+  systems that don't support multiprocessing.
+
+0.14.4 2023-07-08
+-----------------
+
+* Bugfix Use tomllib/tomli for .toml support replacing the
+  unmaintained toml library.
+* Bugfix server hanging on startup failure.
+* Bugfix close websocket with 1011 on internal error (1006 is a
+  client-only code).
+* Bugfix support trio > 0.22 utilising exception groups (note trio <=
+  0.22 is not supported).
+* Bugfix except ConnectionAbortedError which can be raised on Windows
+  machines.
+* Bugfix ensure that closed is sent on reading end.
+* Bugfix handle read_timeout exception on trio.
+* Support and test against Python 3.11.
+* Add explanation of PicklingErrors.
+* Add config option to pass raw h11 headers.
+
 0.14.3 2022-09-04
 -----------------
 
